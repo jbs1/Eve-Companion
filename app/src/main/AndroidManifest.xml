@@ -18,10 +18,8 @@
         <activity android:name=".oauth_callback">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
                 <data
                     android:host="callback"
                     android:scheme="x-eve-oauth" />
