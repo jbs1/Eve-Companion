@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Eve Companion</string>
+    <string name="button_oauth_login">LOGIN WITH EVE</string>
+    <string name="text_login_worked">LOGIN WORKED</string>
+    <string name="text_callback_worked">LOGIN WORKED</string>
 </resources>
