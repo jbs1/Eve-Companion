@@ -126,9 +126,8 @@ class post_get_access_token extends AsyncTask<String, Void, String> {
             String charset = "UTF-8";
             String grant_type = "authorization_code";
             //encode id / secret
-            String enc_auth = Base64.encodeToString("9d7dcbb0380f450ea0d2b435b60f4c15:ssEAFgv5PfEs29bluxs9N3milKgC7j6saILCtMPw".getBytes(), Base64.DEFAULT);
-            // example encode
-            //String enc_auth = Base64.encodeToString("3rdparty_clientid:jkfopwkmif90e0womkepowe9irkjo3p9mkfwe".getBytes(), Base64.DEFAULT);
+            String enc_auth = Base64.encodeToString("9d7dcbb0380f450ea0d2b435b60f4c15:ssEAFgv5PfEs29bluxs9N3milKgC7j6saILCtMPw".getBytes(), Base64.NO_WRAP);
+            Log.i("eve_auth_string_check",enc_auth);
 
             //create body
             String query = null;
@@ -147,8 +146,8 @@ class post_get_access_token extends AsyncTask<String, Void, String> {
 
             con.setRequestMethod("POST");
             con.setRequestProperty("Accept-Charset", charset);
-            con.setRequestProperty( "Authorization","Basic " + enc_auth);
-            con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=" + charset);
+            con.setRequestProperty("Authorization","Basic "+enc_auth);
+            con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=" + charset);
 
             //print request headers
             for (Map.Entry<String, List<String>> req_prop : con.getRequestProperties().entrySet()) {
@@ -162,27 +161,22 @@ class post_get_access_token extends AsyncTask<String, Void, String> {
             }
 
 
-/**            DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-            BufferedWriter writer = new BufferedWriter(
-                    new OutputStreamWriter(wr, "UTF-8"));
-            writer.write(query);
-            writer.flush();
-            writer.close();
- **/
-
             //check response headers
             for (Map.Entry<String, List<String>> header : con.getHeaderFields().entrySet()) {
                 Log.i("eve_response_header",header.getKey() + "=" + header.getValue());
             }
 
+            //check response message
             Log.i("eve_resp_msg",con.getResponseMessage());
 
+
+            //check response body
             String result = null;
             StringBuffer sb = new StringBuffer();
             InputStream is = null;
 
 
-                is = new BufferedInputStream(con.getErrorStream());
+                is = new BufferedInputStream(con.getInputStream());
                 BufferedReader br = new BufferedReader(new InputStreamReader(is));
                 String inputLine = "";
                 while ((inputLine = br.readLine()) != null) {
