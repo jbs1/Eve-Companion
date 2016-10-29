@@ -8,11 +8,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -20,6 +24,8 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
 
 
 public class oauth_callback extends AppCompatActivity {
@@ -81,9 +87,31 @@ public class oauth_callback extends AppCompatActivity {
             e.printStackTrace();
         }**/
 
+
+/**
+        String enc_auth = Base64.encodeToString("9d7dcbb0380f450ea0d2b435b60f4c15:ssEAFgv5PfEs29bluxs9N3milKgC7j6saILCtMPw".getBytes(), Base64.DEFAULT);
+
+        Log.i("eve_enc_auth",enc_auth);
+
+
+        String charset = "UTF-8";
+        String grant_type = "authorization_code";
+
+        String query = null;
+        try {
+            query = String.format("grant_type=%s&code=%s",
+                    URLEncoder.encode(grant_type, charset),
+                    URLEncoder.encode(data.getQueryParameter("code"), charset));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        Log.i("eve_token_query",query);
+**/
+
+
+
         //int status = httpConnection.getResponseCode();
         new post_get_access_token().execute(data.getQueryParameter("code"));
-
 
 
     }
@@ -91,18 +119,18 @@ public class oauth_callback extends AppCompatActivity {
 
 
 class post_get_access_token extends AsyncTask<String, Void, String> {
-
     private Exception exception;
-
     protected String doInBackground(String... code) {
         try {
             String url = "https://login.eveonline.com/oauth/token";
             String charset = "UTF-8";
-
             String grant_type = "authorization_code";
+            //encode id / secret
             String enc_auth = Base64.encodeToString("9d7dcbb0380f450ea0d2b435b60f4c15:ssEAFgv5PfEs29bluxs9N3milKgC7j6saILCtMPw".getBytes(), Base64.DEFAULT);
+            // example encode
+            //String enc_auth = Base64.encodeToString("3rdparty_clientid:jkfopwkmif90e0womkepowe9irkjo3p9mkfwe".getBytes(), Base64.DEFAULT);
 
-
+            //create body
             String query = null;
             try {
                 query = String.format("grant_type=%s&code=%s",
@@ -113,62 +141,64 @@ class post_get_access_token extends AsyncTask<String, Void, String> {
             }
             Log.i("eve_token_query",query);
 
-            URLConnection connection = null;
-            try {
-                connection = new URL(url).openConnection();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            connection.setDoOutput(true); // Triggers POST.
-            //connection.setRequestProperty("Accept-Charset", charset);
-            connection.setRequestProperty( "Authorization", enc_auth);
-            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=" + charset);
-            //connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            //build connection
+            URL obj = new URL(url);
+            HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
 
-            try (OutputStream output = connection.getOutputStream()) {
-                output.write(query.getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
+            con.setRequestMethod("POST");
+            con.setRequestProperty("Accept-Charset", charset);
+            con.setRequestProperty( "Authorization","Basic " + enc_auth);
+            con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=" + charset);
+
+            //print request headers
+            for (Map.Entry<String, List<String>> req_prop : con.getRequestProperties().entrySet()) {
+                Log.i("eve_request_header",req_prop.getKey() + "=" + req_prop.getValue());
             }
 
-            //Log.i("eve_post_string",connection.getRequestProperties());
-            //for (Map.Entry<String, List<String>> request_prop : connection.getRequestProperties().entrySet()){
-              //  Log.i("eve_req_props",request_prop.getKey() + "=" + request_prop.getValue());
-            //}
+            //write body
+            con.setDoOutput(true);
+            try (OutputStream output = con.getOutputStream()) {
+                output.write(query.getBytes(charset));
+            }
 
 
+/**            DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+            BufferedWriter writer = new BufferedWriter(
+                    new OutputStreamWriter(wr, "UTF-8"));
+            writer.write(query);
+            writer.flush();
+            writer.close();
+ **/
 
-            for (Map.Entry<String, List<String>> header : connection.getHeaderFields().entrySet()) {
+            //check response headers
+            for (Map.Entry<String, List<String>> header : con.getHeaderFields().entrySet()) {
                 Log.i("eve_response_header",header.getKey() + "=" + header.getValue());
             }
 
-            InputStream response = connection.getInputStream();
+            Log.i("eve_resp_msg",con.getResponseMessage());
+
+            String result = null;
+            StringBuffer sb = new StringBuffer();
+            InputStream is = null;
 
 
-           /** String contentType = connection.getHeaderField("Content-Type");
-            String charset_1 = null;
-
-            for (String param : contentType.replace(" ", "").split(";")) {
-                if (param.startsWith("charset=")) {
-                    charset_1 = param.split("=", 2)[1];
-                    break;
+                is = new BufferedInputStream(con.getErrorStream());
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                String inputLine = "";
+                while ((inputLine = br.readLine()) != null) {
+                    sb.append(inputLine);
                 }
-            }
+                result = sb.toString();
 
-            if (charset_1 != null) {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(response, charset))) {
-                    for (String line; (line = reader.readLine()) != null;) {
-                        Log.i("eve_response_body",line);
-                    }
-                }
-            } **/
+            Log.i("eve_resp_body","----------------------NOW-------------------");
+            Log.i("eve_resp_body",result);
+
+
 
         } catch (Exception e) {
             this.exception = e;
-
             return null;
         }
-
         return "bla";
     }
 
