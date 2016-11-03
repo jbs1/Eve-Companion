@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -180,10 +181,13 @@ class add_char_to_database extends AsyncTask<String, Void, JSONObject> {
                 Log.w("eve_chars", "Could NOT add "+char_name+"("+char_id+") to database!");
             }
 
+            //Toast.makeText(this, "added char", Toast.LENGTH_LONG).show();
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
 
     }
+
 }
