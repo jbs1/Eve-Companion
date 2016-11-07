@@ -21,11 +21,11 @@ import java.net.URLEncoder;
 import javax.net.ssl.HttpsURLConnection;
 
 
-class add_char_to_database extends AsyncTask<String, Void, JSONObject> {
+class AddChar extends AsyncTask<String, Void, JSONObject> {
     private Exception exception;
     private Context ct;
 
-    add_char_to_database(Context context){
+    AddChar(Context context){
         ct = context;
 
     }
