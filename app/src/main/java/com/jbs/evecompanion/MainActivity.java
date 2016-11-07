@@ -4,7 +4,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+
+import org.json.JSONException;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -17,6 +20,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         myDB=new DBhelper(this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+
+        try {
+            Log.i("eve_logged_chars",MainActivity.myDB.get_all_chars().toString(2));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**Calls eve login on butt click**/

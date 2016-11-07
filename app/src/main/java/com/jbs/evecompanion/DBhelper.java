@@ -6,17 +6,21 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 class DBhelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "eve_comp.db";
     private static final int DATABASE_VERSION = 2;
-    private static final String AUTH_TABLE = "auth_table";
-    private static final String AUTH_TABLE_COL1 = "ID";
-    private static final String AUTH_TABLE_COL2 = "ACCESS_TOKEN";
-    private static final String AUTH_TABLE_COL3 = "REFRESH_TOKEN";
-    private static final String AUTH_TABLE_COL4 = "VALID_UNITL";
-    private static final String AUTH_TABLE_COL5 = "CHAR_ID";
-    private static final String AUTH_TABLE_COL6 = "CHAR_NAME";
+    private static final String CHAR_TABLE = "char_table";
+    private static final String CHAR_TABLE_COL0 = "ID";
+    private static final String CHAR_TABLE_COL1 = "ACCESS_TOKEN";
+    private static final String CHAR_TABLE_COL2 = "REFRESH_TOKEN";
+    private static final String CHAR_TABLE_COL3 = "VALID_UNITL";
+    private static final String CHAR_TABLE_COL4 = "CHAR_ID";
+    private static final String CHAR_TABLE_COL5 = "CHAR_NAME";
 
 
     DBhelper(Context context) {
@@ -25,7 +29,7 @@ class DBhelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table "+AUTH_TABLE+" ("+AUTH_TABLE_COL1+" INTEGER PRIMARY KEY AUTOINCREMENT,"+AUTH_TABLE_COL2+" TEXT,"+AUTH_TABLE_COL3+" TEXT,"+AUTH_TABLE_COL4+" LONG,"+AUTH_TABLE_COL5+" INTEGER UNIQUE,"+AUTH_TABLE_COL6+" TEXT)");
+        db.execSQL("create table "+CHAR_TABLE+" ("+CHAR_TABLE_COL0+" INTEGER PRIMARY KEY AUTOINCREMENT,"+CHAR_TABLE_COL1+" TEXT,"+CHAR_TABLE_COL2+" TEXT,"+CHAR_TABLE_COL3+" LONG,"+CHAR_TABLE_COL4+" INTEGER UNIQUE,"+CHAR_TABLE_COL5+" TEXT)");
     }
 
     @Override
@@ -33,13 +37,13 @@ class DBhelper extends SQLiteOpenHelper {
         //db.execSQL();
     }
 
-    public void resetDB(){
+    void resetDB(){
         SQLiteDatabase db =this.getWritableDatabase();
-        db.execSQL("DROP TABLE "+AUTH_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS "+CHAR_TABLE);
         this.onCreate(db);
     }
 
-    public String getTableAsString(String tableName) {
+    String getTableAsString(String tableName) {
         SQLiteDatabase db = this.getWritableDatabase();
         String tableString = String.format("Table %s:\n", tableName);
         Cursor allRows  = db.rawQuery("SELECT * FROM " + tableName, null);
@@ -62,12 +66,34 @@ class DBhelper extends SQLiteOpenHelper {
     boolean insert_char(String acctk, String reftk, long valid, int charid, String charname) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues ctv = new ContentValues();
-        ctv.put(AUTH_TABLE_COL2,acctk);
-        ctv.put(AUTH_TABLE_COL3,reftk);
-        ctv.put(AUTH_TABLE_COL4,valid);
-        ctv.put(AUTH_TABLE_COL5,charid);
-        ctv.put(AUTH_TABLE_COL6,charname);
-        long result = db.insert(AUTH_TABLE, null, ctv);
+        ctv.put(CHAR_TABLE_COL1,acctk);
+        ctv.put(CHAR_TABLE_COL2,reftk);
+        ctv.put(CHAR_TABLE_COL3,valid);
+        ctv.put(CHAR_TABLE_COL4,charid);
+        ctv.put(CHAR_TABLE_COL5,charname);
+        long result = db.insert(CHAR_TABLE, null, ctv);
         return result != -1;
+    }
+    
+    JSONArray get_all_chars(){
+        JSONArray arr=new JSONArray();
+        SQLiteDatabase db =this.getWritableDatabase();
+        Cursor chars=db.rawQuery("SELECT * FROM " + CHAR_TABLE,null);
+
+        if(chars.moveToFirst()){
+            do {
+                JSONObject c = new JSONObject();
+
+                try {
+                    c.put("name", chars.getString(5));
+                    c.put("id", chars.getInt(4));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                arr.put(c);
+            } while (chars.moveToNext());
+        }
+        chars.close();
+        return arr;
     }
 }

@@ -22,7 +22,6 @@ import javax.net.ssl.HttpsURLConnection;
 
 
 class AddChar extends AsyncTask<String, Void, JSONObject> {
-    private Exception exception;
     private Context ct;
 
     AddChar(Context context){
@@ -127,7 +126,7 @@ class AddChar extends AsyncTask<String, Void, JSONObject> {
             return json_result;
 
         } catch (Exception e) {
-            this.exception = e;
+            e.printStackTrace();
             return null;
         }
 
