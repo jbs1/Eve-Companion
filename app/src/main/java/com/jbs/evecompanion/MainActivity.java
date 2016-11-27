@@ -27,11 +27,9 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
 
-        try {
-            Log.i("eve_logged_chars",MainActivity.myDB.get_all_chars().toString(2));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+
+        Log.i("eve_logged_chars",MainActivity.myDB.getTableAsString("char_table"));
+
 
     }
 
@@ -40,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         Uri uri = Uri.parse("https://login.eveonline.com/oauth/authorize/?response_type=code" +
                 "&redirect_uri=x-eve-oauth%3A%2F%2Fcallback" +
                 "&client_id=" + MainActivity.oauth_id +
-                "&scope=characterAccountRead%20characterWalletRead" +
+                "&scope=esi-skills.read_skillqueue.v1%20esi-skills.read_skills.v1" +
                 "&state=login_eve_first");
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         startActivity(intent);

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -74,6 +75,45 @@ class DBhelper extends SQLiteOpenHelper {
         long result = db.insert(CHAR_TABLE, null, ctv);
         return result != -1;
     }
+
+    String access_token(int charid){
+        SQLiteDatabase db =this.getWritableDatabase();
+        Cursor chars=db.rawQuery("SELECT * FROM " + CHAR_TABLE + " WHERE CHAR_ID=" + Integer.toString(charid) ,null);
+
+
+        JSONObject c = new JSONObject();
+
+        if(chars.moveToFirst()){
+            do {
+                try {
+                    c.put("access", chars.getString(1));
+                    c.put("refresh", chars.getString(2));
+                    c.put("valid", chars.getInt(3));
+                    c.put("id", chars.getInt(4));
+                    c.put("name", chars.getString(5));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            } while (chars.moveToNext());
+        } else {
+            return null;
+        }
+        chars.close();
+
+        try {
+            if(System.currentTimeMillis()<c.getInt("valid")){
+                return c.getString("access");
+            } else {
+                //get new access token with a refreshtoken class
+                return null;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
     
     JSONArray get_all_chars(){
         JSONArray arr=new JSONArray();
