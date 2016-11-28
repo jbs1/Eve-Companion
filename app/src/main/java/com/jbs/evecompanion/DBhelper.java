@@ -11,6 +11,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.concurrent.ExecutionException;
+
 
 class DBhelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "eve_comp.db";
@@ -78,36 +80,40 @@ class DBhelper extends SQLiteOpenHelper {
 
     String access_token(int charid){
         SQLiteDatabase db =this.getWritableDatabase();
-        Cursor chars=db.rawQuery("SELECT * FROM " + CHAR_TABLE + " WHERE CHAR_ID=" + Integer.toString(charid) ,null);
+        Cursor curchar=db.rawQuery("SELECT * FROM " + CHAR_TABLE + " WHERE CHAR_ID=" + Integer.toString(charid) ,null);
 
 
         JSONObject c = new JSONObject();
 
-        if(chars.moveToFirst()){
+        if(curchar.moveToFirst()){
             do {
                 try {
-                    c.put("access", chars.getString(1));
-                    c.put("refresh", chars.getString(2));
-                    c.put("valid", chars.getInt(3));
-                    c.put("id", chars.getInt(4));
-                    c.put("name", chars.getString(5));
+                    c.put("access", curchar.getString(1));
+                    c.put("refresh", curchar.getString(2));
+                    c.put("valid", curchar.getInt(3));
+                    c.put("id", curchar.getInt(4));
+                    c.put("name", curchar.getString(5));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            } while (chars.moveToNext());
+            } while (curchar.moveToNext());
         } else {
             return null;
         }
-        chars.close();
+        curchar.close();
 
         try {
             if(System.currentTimeMillis()<c.getInt("valid")){
                 return c.getString("access");
             } else {
+
+                AccessToken at = new AccessToken(c);
+                at.execute();
+                Log.i("eve_refresh_answer",at.get().toString(4));
                 //get new access token with a refreshtoken class
                 return null;
             }
-        } catch (JSONException e) {
+        } catch (JSONException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
         return null;

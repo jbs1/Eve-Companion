@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         myDB=new DBhelper(this);
+        myDB.access_token(93588930);
     }
 
     @Override
