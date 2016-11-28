@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutionException;
 
 class DBhelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "eve_comp.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 4;
     private static final String CHAR_TABLE = "char_table";
     private static final String CHAR_TABLE_COL0 = "ID";
     private static final String CHAR_TABLE_COL1 = "ACCESS_TOKEN";
@@ -37,11 +37,6 @@ class DBhelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        //db.execSQL();
-    }
-
-    void resetDB(){
-        SQLiteDatabase db =this.getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS "+CHAR_TABLE);
         this.onCreate(db);
     }
@@ -81,6 +76,7 @@ class DBhelper extends SQLiteOpenHelper {
     String access_token(int charid){
         SQLiteDatabase db =this.getWritableDatabase();
         Cursor curchar=db.rawQuery("SELECT * FROM " + CHAR_TABLE + " WHERE CHAR_ID=" + Integer.toString(charid) ,null);
+        ContentValues ctv = new ContentValues();
 
 
         JSONObject c = new JSONObject();
@@ -109,9 +105,17 @@ class DBhelper extends SQLiteOpenHelper {
 
                 AccessToken at = new AccessToken(c);
                 at.execute();
-                Log.i("eve_refresh_answer",at.get().toString(4));
-                //get new access token with a refreshtoken class
-                return null;
+                //Log.i("eve_refresh_answer",at.get().toString(4));
+
+                long valid=System.currentTimeMillis()+(at.get().getInt("expires_in")-10)*1000;
+
+                ctv.put(CHAR_TABLE_COL1,at.get().getString("access_token"));
+                ctv.put(CHAR_TABLE_COL3,valid);
+                String[] selarg = {Integer.toString(charid)};
+
+                int res = db.update(CHAR_TABLE,ctv,CHAR_TABLE_COL4+"=?",selarg);
+                Log.i("eve_refresh_result",Integer.toString(res));
+                return at.get().getString("access_token");
             }
         } catch (JSONException | InterruptedException | ExecutionException e) {
             e.printStackTrace();

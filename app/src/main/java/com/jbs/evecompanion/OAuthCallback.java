@@ -11,7 +11,7 @@ public class OAuthCallback extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_oauth_login);
+        setContentView(R.layout.activity_oauth_callback);
 
         Intent intent = getIntent();
         Uri data = intent.getData();

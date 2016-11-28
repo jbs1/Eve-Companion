@@ -2,9 +2,7 @@ package com.jbs.evecompanion;
 
 import android.os.AsyncTask;
 import android.util.Base64;
-import android.util.Log;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
@@ -25,7 +23,6 @@ import javax.net.ssl.HttpsURLConnection;
 
 class AccessToken extends AsyncTask<Void, Void, JSONObject> {
     private JSONObject charobj;
-    private JSONObject newtoken;
 
     AccessToken(JSONObject cid){
         charobj = cid;

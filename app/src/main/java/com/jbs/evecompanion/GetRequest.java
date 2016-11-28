@@ -26,6 +26,7 @@ import javax.net.ssl.HttpsURLConnection;
 class GetRequest extends AsyncTask<String, Void, JSONObject> {
     private Context ct;
     private JSONArray q;
+
     GetRequest(Context context, JSONArray query){
         ct = context;
         q = query;
