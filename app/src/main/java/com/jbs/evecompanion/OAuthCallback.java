@@ -5,6 +5,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.TextView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.concurrent.ExecutionException;
 
 public class OAuthCallback extends AppCompatActivity {
 
@@ -16,8 +22,19 @@ public class OAuthCallback extends AppCompatActivity {
         Intent intent = getIntent();
         Uri data = intent.getData();
 
+
+
         if(data != null){
-            new AddChar(OAuthCallback.this).execute(data.getQueryParameter("code"));
+            try {
+                JSONObject newchar=new AddChar(OAuthCallback.this).execute(data.getQueryParameter("code")).get();
+                TextView tv1 = (TextView)findViewById(R.id.textView2);
+                tv1.setText("Login Successful for "+newchar.getString("CharacterName")+
+                        "("+newchar.getString("CharacterID")+")\n"+
+                        "Waiting for database confirmation!"
+                );
+            } catch (JSONException | InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

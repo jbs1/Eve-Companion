@@ -6,8 +6,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
+
+import static java.lang.System.in;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -26,15 +32,30 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+        LinearLayout ll= (LinearLayout) findViewById(R.id.char_layout);
+        if(( ll).getChildCount() > 0)
+            ( ll).removeAllViews();
 
+        JSONArray chars=myDB.get_all_chars();
+        TextView[] tv= new TextView[chars.length()];
 
+        for (int i = 0; i < chars.length(); i++) {
+            try {
+                tv[i] = new TextView(this);
+                JSONObject c = (JSONObject) chars.get(i);
+                tv[i].setText(c.getString("name")+"\n"+c.getString("id"));
+                ll.addView(tv[i]);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
 
-        Log.i("eve_logged_chars",MainActivity.myDB.getTableAsString("char_table"));
+        //Log.i("eve_logged_chars",MainActivity.myDB.getTableAsString("char_table"));
 
 
     }
 
-    /**Calls eve login on butt click**/
+    /**Calls eve login on button click**/
     public void login_to_eve(View view){
         Uri uri = Uri.parse("https://login.eveonline.com/oauth/authorize/?response_type=code" +
                 "&redirect_uri=x-eve-oauth%3A%2F%2Fcallback" +

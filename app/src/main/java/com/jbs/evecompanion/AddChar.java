@@ -161,11 +161,11 @@ class AddChar extends AsyncTask<String, Void, JSONObject> {
 
 
             if(MainActivity.myDB.insert_char(access_token,refresh_token,valid_until,char_id,char_name)){
-                Log.i("eve_chars", "Added char "+char_name+"("+char_id+") to database!");
-                Toast.makeText(this.ct, "Added char "+char_name+"("+char_id+") to database!", Toast.LENGTH_LONG).show();
+                //Log.i("eve_chars", "SUCCESS: Added char "+char_name+"("+char_id+") to database!");
+                Toast.makeText(this.ct, "SUCCESS: Added char "+char_name+"("+char_id+") to database!", Toast.LENGTH_LONG).show();
             } else {
-                Log.w("eve_chars", "Could NOT add "+char_name+"("+char_id+") to database!");
-                Toast.makeText(this.ct, "Could NOT add "+char_name+"("+char_id+") to database!", Toast.LENGTH_LONG).show();
+                //Log.w("eve_chars", "ERROR: Could NOT add "+char_name+"("+char_id+") to database!");
+                Toast.makeText(this.ct, "ERROR: Could NOT add "+char_name+"("+char_id+") to database!", Toast.LENGTH_LONG).show();
             }
 
 
