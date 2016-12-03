@@ -39,11 +39,26 @@ public class MainActivity extends AppCompatActivity {
         JSONArray chars=myDB.get_all_chars();
         TextView[] tv= new TextView[chars.length()];
 
+        View.OnClickListener char_listener= new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getBaseContext(), CharView.class);
+                intent.putExtra("char_id", (int) v.getTag());
+                //Log.i("eve_click_row",v.getTag().toString());
+
+                startActivity(intent);
+
+            }
+        };
+
+
         for (int i = 0; i < chars.length(); i++) {
             try {
                 tv[i] = new TextView(this);
                 JSONObject c = (JSONObject) chars.get(i);
                 tv[i].setText(c.getString("name")+"\n"+c.getString("id"));
+                tv[i].setTag(c.getInt("id"));
+                tv[i].setOnClickListener(char_listener);
                 ll.addView(tv[i]);
             } catch (JSONException e) {
                 e.printStackTrace();
