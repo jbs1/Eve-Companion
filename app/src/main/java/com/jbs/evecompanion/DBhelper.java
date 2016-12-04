@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -16,7 +17,7 @@ import java.util.concurrent.ExecutionException;
 
 class DBhelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "eve_comp.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 6;
     private static final String CHAR_TABLE = "char_table";
     private static final String CHAR_TABLE_COL0 = "ID";
     private static final String CHAR_TABLE_COL1 = "ACCESS_TOKEN";
@@ -86,7 +87,7 @@ class DBhelper extends SQLiteOpenHelper {
                 try {
                     c.put("access", curchar.getString(1));
                     c.put("refresh", curchar.getString(2));
-                    c.put("valid", curchar.getInt(3));
+                    c.put("valid", curchar.getLong(3));
                     c.put("id", curchar.getInt(4));
                     c.put("name", curchar.getString(5));
                 } catch (JSONException e) {
@@ -98,14 +99,18 @@ class DBhelper extends SQLiteOpenHelper {
         }
         curchar.close();
 
+
         try {
-            if(System.currentTimeMillis()<c.getInt("valid")){
+            if(System.currentTimeMillis()<c.getLong("valid")){
                 return c.getString("access");
             } else {
 
                 AccessToken at = new AccessToken(c);
-                at.execute();
-                //Log.i("eve_refresh_answer",at.get().toString(4));
+
+                at.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                //at.execute();
+
+
 
                 long valid=System.currentTimeMillis()+(at.get().getInt("expires_in")-10)*1000;
 
@@ -114,7 +119,6 @@ class DBhelper extends SQLiteOpenHelper {
                 String[] selarg = {Integer.toString(charid)};
 
                 int res = db.update(CHAR_TABLE,ctv,CHAR_TABLE_COL4+"=?",selarg);
-                Log.i("eve_refresh_result",Integer.toString(res));
                 return at.get().getString("access_token");
             }
         } catch (JSONException | InterruptedException | ExecutionException e) {

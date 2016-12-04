@@ -2,7 +2,9 @@ package com.jbs.evecompanion;
 
 import android.os.AsyncTask;
 import android.util.Base64;
+import android.util.Log;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
@@ -13,12 +15,10 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.List;
+import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
-
-
-
-
 
 
 class AccessToken extends AsyncTask<Void, Void, JSONObject> {
@@ -26,11 +26,14 @@ class AccessToken extends AsyncTask<Void, Void, JSONObject> {
 
     AccessToken(JSONObject cid){
         charobj = cid;
+        try {
+            Log.i("eve_",cid.toString(2));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     protected JSONObject doInBackground(Void... params) {
-
-
 
         try {
             String url = "https://login.eveonline.com/oauth/token";
@@ -38,6 +41,7 @@ class AccessToken extends AsyncTask<Void, Void, JSONObject> {
             String grant_type = "refresh_token";
             //encode id / secret
             String enc_auth = Base64.encodeToString((MainActivity.oauth_id+":"+MainActivity.oauth_sec).getBytes(), Base64.NO_WRAP);
+
 
             //create body
             String query = null;
@@ -60,8 +64,8 @@ class AccessToken extends AsyncTask<Void, Void, JSONObject> {
 
             //print request headers
             /**for (Map.Entry<String, List<String>> req_prop : con.getRequestProperties().entrySet()) {
-             Log.i("eve_request_header",req_prop.getKey() + "=" + req_prop.getValue());
-             }**/
+                Log.i("eve_request_header",req_prop.getKey() + "=" + req_prop.getValue());
+            }**/
 
             //write body
             con.setDoOutput(true);
@@ -73,8 +77,8 @@ class AccessToken extends AsyncTask<Void, Void, JSONObject> {
 
             //check response headers
             /**for (Map.Entry<String, List<String>> header : con.getHeaderFields().entrySet()) {
-             Log.i("eve_response_header",header.getKey() + "=" + header.getValue());
-             }**/
+                Log.i("eve_response_header",header.getKey() + "=" + header.getValue());
+            }**/
 
 
             //check response body

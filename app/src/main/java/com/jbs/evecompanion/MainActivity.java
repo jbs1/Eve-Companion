@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         myDB=new DBhelper(this);
-        //myDB.access_token(93588930);
     }
 
     @Override
@@ -44,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(getBaseContext(), CharView.class);
                 intent.putExtra("char_id", (int) v.getTag());
-                //Log.i("eve_click_row",v.getTag().toString());
 
                 startActivity(intent);
 
@@ -66,8 +64,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //Log.i("eve_logged_chars",MainActivity.myDB.getTableAsString("char_table"));
-
-
+        //Log.i("eve_chars",myDB.getTableAsString("char_table"));
+        //myDB.access_token(93588930);
+        //Log.i("eve_chars",myDB.getTableAsString("char_table"));
     }
 
     /**Calls eve login on button click**/

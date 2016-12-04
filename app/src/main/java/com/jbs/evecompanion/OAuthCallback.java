@@ -3,6 +3,7 @@ package com.jbs.evecompanion;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -26,7 +27,7 @@ public class OAuthCallback extends AppCompatActivity {
 
         if(data != null){
             try {
-                JSONObject newchar=new AddChar(OAuthCallback.this).execute(data.getQueryParameter("code")).get();
+                JSONObject newchar=new AddChar(OAuthCallback.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,data.getQueryParameter("code")).get();
                 TextView tv1 = (TextView)findViewById(R.id.textView2);
                 tv1.setText("Login Successful for "+newchar.getString("CharacterName")+
                         "("+newchar.getString("CharacterID")+")\n"+
